@@ -5,12 +5,27 @@ import (
 	"image"
 	"kadai1/convimg"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"reflect"
 	"testing"
 )
 
 var patherr *os.PathError
+
+func TestMain(m *testing.M) {
+	// reset testdata
+	out, err := exec.Command("../testdata.sh").Output()
+	if err != nil {
+		fmt.Print(err.Error())
+	}
+	fmt.Print(string(out))
+
+	// run test
+	code := m.Run()
+
+	os.Exit(code)
+}
 
 func TestDecode(t *testing.T) {
 	tests := []struct {
