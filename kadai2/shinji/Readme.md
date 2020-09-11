@@ -69,9 +69,6 @@ func main() {
 ```shell
 $ cd {Path_To_Repository}/kadai2/shinji
 
-# テストデータ生成&初期化
-$ ./testdata.sh     
-
 # テスト実行（カバレッジを表示）
 $ go test ./... -cover 
 
