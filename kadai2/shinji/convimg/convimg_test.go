@@ -6,19 +6,22 @@ import (
 	"kadai1/convimg"
 	"os"
 	"path/filepath"
+	"reflect"
 	"testing"
 )
+
+var patherr *os.PathError
 
 func TestDecode(t *testing.T) {
 	tests := []struct {
 		name    string
 		srcPath string
 		isErr   bool
-		want    string
+		want    error
 	}{
-		{name: "decode jpg", srcPath: "../testdata/img/azarashi.jpg", isErr: false, want: ""},
-		{name: "decode png", srcPath: "../testdata/osaru.png", isErr: false, want: ""},
-		{name: "no such file or dir", srcPath: "../testdata/img/dontexist.jpg", isErr: true, want: "open ../testdata/img/dontexist.jpg: no such file or directory"},
+		{name: "decode jpg", srcPath: "../testdata/img/azarashi.jpg", isErr: false, want: nil},
+		{name: "decode png", srcPath: "../testdata/osaru.png", isErr: false, want: nil},
+		{name: "no such file or dir", srcPath: "../testdata/img/dontexist.jpg", isErr: true, want: patherr},
 	}
 
 	for _, test := range tests {
@@ -64,10 +67,10 @@ func TestEncode(t *testing.T) {
 		img     image.Image
 		to      convimg.Ext
 		isErr   bool
-		want    string
+		want    error
 	}{
-		{name: "encode gif", dstPath: "../testdata/img/azarashi.gif", img: img, to: ".gif", isErr: false, want: ""},
-		{name: "encode png", dstPath: "../testdata/img/azarashi.png", img: img, to: ".png", isErr: false, want: ""},
+		{name: "encode gif", dstPath: "../testdata/img/azarashi.gif", img: img, to: ".gif", isErr: false, want: nil},
+		{name: "encode png", dstPath: "../testdata/img/azarashi.png", img: img, to: ".png", isErr: false, want: nil},
 		//{name: "empty img", dstPath: "../testdata/img/azarashi.gif", img: empty-img, to: ".gif", isErr: true, want: ""}, //対策を未実装
 	}
 
@@ -96,12 +99,12 @@ func TestDo(t *testing.T) {
 		dstPath string
 		rmSrc   bool
 		isErr   bool
-		want    string
+		want    error
 	}{
-		{name: "jpg to png dont remove", srcPath: "../testdata/img/azarashi.jpg", to: ".png", dstPath: "../testdata/img/azarashi.png", rmSrc: false, isErr: false, want: ""},
-		{name: "png to jpg dont remove", srcPath: "../testdata/osaru.png", to: ".jpg", dstPath: "../testdata/osaru.jpg", rmSrc: false, isErr: false, want: ""},
-		{name: "jpg to png remove", srcPath: "../testdata/img/azarashi.jpg", to: ".png", dstPath: "../testdata/img/azarashi.png", rmSrc: true, isErr: false, want: ""},
-		{name: "no such file or dir", srcPath: "../testdata/img/dontexist.jpg", to: ".png", dstPath: "../testdata/img/azarashi.png", rmSrc: true, isErr: true, want: "open ../testdata/img/dontexist.jpg: no such file or directory"},
+		{name: "jpg to png dont remove", srcPath: "../testdata/img/azarashi.jpg", to: ".png", dstPath: "../testdata/img/azarashi.png", rmSrc: false, isErr: false, want: nil},
+		{name: "png to jpg dont remove", srcPath: "../testdata/osaru.png", to: ".jpg", dstPath: "../testdata/osaru.jpg", rmSrc: false, isErr: false, want: nil},
+		{name: "jpg to png remove", srcPath: "../testdata/img/azarashi.jpg", to: ".png", dstPath: "../testdata/img/azarashi.png", rmSrc: true, isErr: false, want: nil},
+		{name: "no such file or dir", srcPath: "../testdata/img/dontexist.jpg", to: ".png", dstPath: "../testdata/img/azarashi.png", rmSrc: true, isErr: true, want: patherr},
 	}
 
 	for _, test := range tests {
@@ -147,16 +150,14 @@ func decodeForTest(t *testing.T, srcPath string) (image.Image, error) {
 	return img, nil
 }
 
-func errCheck(t *testing.T, err error, isErr bool, want string) {
+func errCheck(t *testing.T, err error, isErr bool, want error) {
 	t.Helper()
 
 	switch {
 	case !isErr && err != nil: //正常系なのにエラー
-		t.Errorf("want no err, but got %v", err)
-	case isErr && err == nil: //異常系なのにエラー無し
-		t.Errorf("want err ,but no err")
-	case isErr && err.Error() != want: //想定と異なるエラーが発生（エラーメッセージで判定するのはアンチパターン？）
-		t.Errorf("want [err]: %v, but got [err]: %v", want, err)
+		t.Errorf("want no err, but got [%v]", reflect.TypeOf(err))
+	case isErr && reflect.TypeOf(err) != reflect.TypeOf(want): //異常系なのにエラー無し、もしくは想定外のエラー
+		t.Errorf("want [%v], but got [%v]", reflect.TypeOf(want), reflect.TypeOf(err))
 	}
 }
 
