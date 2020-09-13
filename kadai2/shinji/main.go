@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"kadai1/convimg"
+	"github.com/shinnosuke/gopherdojo-studyroom/kadai2/shinji/convimg"
 )
 
 var (

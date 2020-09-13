@@ -3,12 +3,13 @@ package convimg_test
 import (
 	"fmt"
 	"image"
-	"kadai1/convimg"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"reflect"
 	"testing"
+
+	"github.com/shinnosuke/gopherdojo-studyroom/kadai2/shinji/convimg"
 )
 
 var patherr *os.PathError
