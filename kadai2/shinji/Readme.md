@@ -15,10 +15,37 @@
   Read/Write関数を実装するだけで、Reader/Writerインターフェイスを実装する事が出来る
   - 上記より、io.Readerまたはio.Writerを引数に指定している関数にbufio.Readerやos.Fileを渡すことができる
 
-- io.Readerとio.Writerがあることで、どういう利点があるのか具体例を挙げて考えてみる  
-  - 下記を行っておけば、片方に変更があった時にもう片方を変更せずに済む？(正直理解が曖昧です‥)
-    - 入出力処理を行う関数について、io.Reader/io.Writerを引数にしておく
-    - 入力処理、出力処理を行うオブジェクトにio.Reader/io.Writerインターフェイスを実装する
+- io.Readerとio.Writerがあることで、どういう利点があるのか具体例を挙げて考えてみる
+  - io.Reader/io.Writer型の変数に対して同じ処理を行う関数を一般化出来る
+  
+（io.Readerとio.Writerが無かった場合）
+```golang
+func sayb(r *Buffer) {
+	fmt.Print(r)
+}
+
+func sayf(r *File) {
+  fmt.Print(r)
+}
+
+func main() {
+	r := bytes.NewBufferString("hello")
+	// r, _ := os.Open("hoge.txt") // ファイルでもOK
+	say(r)
+}
+```
+（io.Readerとio.Writerがある場合）
+```golang
+func say(r io.Reader) {
+	fmt.Print(r)
+}
+
+func main() {
+	r := bytes.NewBufferString("hello")
+	// r, _ := os.Open("hoge.txt") // ファイルでもOK
+	say(r)
+}
+```
 
 # <課題2-2> 【TRY】 テストを書いてみよう
 ## 概要
@@ -41,9 +68,6 @@
 ## 実行手順
 ```shell
 $ cd {Path_To_Repository}/kadai2/shinji
-
-# テストデータ生成&初期化
-$ ./testdata.sh     
 
 # テスト実行（カバレッジを表示）
 $ go test ./... -cover 
