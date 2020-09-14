@@ -55,7 +55,7 @@
 			<div id="nav">
 				<select id="files">
 				
-				<option value="file0">kadai1/convimg/convimg.go (81.8%)</option>
+				<option value="file0">github.com/shinnosuke/gopherdojo-studyroom/kadai2/shinji/convimg/convimg.go (80.4%)</option>
 				
 				</select>
 			</div>
@@ -90,11 +90,27 @@ const (
         GIF  Ext = ".gif"
 )
 
+type OpenErr struct {
+        srcPath string
+}
+
+func (e *OpenErr) Error() string <span class="cov0" title="0">{
+        return fmt.Sprintf("cannot open %s", e.srcPath)
+}</span>
+
+type DecodeErr struct {
+        srcPath string
+}
+
+func (e *DecodeErr) Error() string <span class="cov0" title="0">{
+        return fmt.Sprintf("cannot open %s", e.srcPath)
+}</span>
+
 func decode(srcPath string) (image.Image, error) <span class="cov8" title="1">{
         // ファイルオープン
         src, openerr := os.Open(filepath.Clean(srcPath))
         if openerr != nil </span><span class="cov8" title="1">{
-                return nil, openerr
+                return nil, &amp;OpenErr{srcPath: srcPath}
         }</span>
         <span class="cov8" title="1">var closeerr error
         defer func() </span><span class="cov8" title="1">{
@@ -105,8 +121,8 @@ func decode(srcPath string) (image.Image, error) <span class="cov8" title="1">{
 
         // ファイルオブジェクトを画像オブジェクトに変換
         <span class="cov8" title="1">img, _, decodeerr := image.Decode(src)
-        if decodeerr != nil </span><span class="cov0" title="0">{
-                return nil, decodeerr
+        if decodeerr != nil </span><span class="cov8" title="1">{
+                return nil, &amp;DecodeErr{}
         }</span>
 
         <span class="cov8" title="1">return img, nil</span>

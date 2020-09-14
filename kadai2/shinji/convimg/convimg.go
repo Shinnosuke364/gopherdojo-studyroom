@@ -19,11 +19,27 @@ const (
 	GIF  Ext = ".gif"
 )
 
+type OpenErr struct {
+	srcPath string
+}
+
+func (e *OpenErr) Error() string {
+	return fmt.Sprintf("cannot open %s", e.srcPath)
+}
+
+type DecodeErr struct {
+	srcPath string
+}
+
+func (e *DecodeErr) Error() string {
+	return fmt.Sprintf("cannot open %s", e.srcPath)
+}
+
 func decode(srcPath string) (image.Image, error) {
 	// ファイルオープン
 	src, openerr := os.Open(filepath.Clean(srcPath))
 	if openerr != nil {
-		return nil, openerr
+		return nil, &OpenErr{srcPath: srcPath}
 	}
 	var closeerr error
 	defer func() {
@@ -35,7 +51,7 @@ func decode(srcPath string) (image.Image, error) {
 	// ファイルオブジェクトを画像オブジェクトに変換
 	img, _, decodeerr := image.Decode(src)
 	if decodeerr != nil {
-		return nil, decodeerr
+		return nil, &DecodeErr{}
 	}
 
 	return img, nil

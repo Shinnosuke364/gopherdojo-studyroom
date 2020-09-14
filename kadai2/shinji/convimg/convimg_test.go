@@ -33,11 +33,12 @@ func TestDecode(t *testing.T) {
 		name    string
 		srcPath string
 		isErr   bool
-		want    error
+		want    string
 	}{
-		{name: "decode jpg", srcPath: "../testdata/img/azarashi.jpg", isErr: false, want: nil},
-		{name: "decode png", srcPath: "../testdata/osaru.png", isErr: false, want: nil},
-		{name: "no such file or dir", srcPath: "../testdata/img/dontexist.jpg", isErr: true, want: patherr},
+		{name: "decode jpg", srcPath: "../testdata/img/azarashi.jpg", isErr: false, want: ""},
+		{name: "decode png", srcPath: "../testdata/osaru.png", isErr: false, want: ""},
+		{name: "no such file or dir", srcPath: "../testdata/img/dontexist.jpg", isErr: true, want: "*convimg.OpenErr"},
+		{name: "textfile", srcPath: "../testdata/textfile.jpg", isErr: true, want: "*convimg.DecodeErr"},
 	}
 
 	for _, test := range tests {
@@ -76,6 +77,7 @@ func TestEncode(t *testing.T) {
 	//テスト用のimageを生成
 	img, _ := decodeForTest(t, "../testdata/img/azarashi.jpg")
 	//var empty-img image.Image
+	// textimg, _ := decodeForTest(t, "../testdata/textfile.jpg")
 
 	tests := []struct {
 		name    string
@@ -83,11 +85,12 @@ func TestEncode(t *testing.T) {
 		img     image.Image
 		to      convimg.Ext
 		isErr   bool
-		want    error
+		want    string
 	}{
-		{name: "encode gif", dstPath: "../testdata/img/azarashi.gif", img: img, to: ".gif", isErr: false, want: nil},
-		{name: "encode png", dstPath: "../testdata/img/azarashi.png", img: img, to: ".png", isErr: false, want: nil},
-		//{name: "empty img", dstPath: "../testdata/img/azarashi.gif", img: empty-img, to: ".gif", isErr: true, want: ""}, //対策を未実装
+		{name: "encode gif", dstPath: "../testdata/img/azarashi.gif", img: img, to: ".gif", isErr: false, want: ""},
+		{name: "encode png", dstPath: "../testdata/img/azarashi.png", img: img, to: ".png", isErr: false, want: ""},
+		// {name: "empty img", dstPath: "../testdata/img/azarashi.gif", img: emptyimg, to: ".gif", isErr: true, want: ""}, //対策を未実装
+		// {name: "text img", dstPath: "../testdata/img/azarashi.png", img: textimg, to: ".png", isErr: true, want: ""}, //対策を未実装
 	}
 
 	for _, test := range tests {
@@ -115,12 +118,13 @@ func TestDo(t *testing.T) {
 		dstPath string
 		rmSrc   bool
 		isErr   bool
-		want    error
+		want    string
 	}{
-		{name: "jpg to png dont remove", srcPath: "../testdata/img/azarashi.jpg", to: ".png", dstPath: "../testdata/img/azarashi.png", rmSrc: false, isErr: false, want: nil},
-		{name: "png to jpg dont remove", srcPath: "../testdata/osaru.png", to: ".jpg", dstPath: "../testdata/osaru.jpg", rmSrc: false, isErr: false, want: nil},
-		{name: "jpg to png remove", srcPath: "../testdata/img/azarashi.jpg", to: ".png", dstPath: "../testdata/img/azarashi.png", rmSrc: true, isErr: false, want: nil},
-		{name: "no such file or dir", srcPath: "../testdata/img/dontexist.jpg", to: ".png", dstPath: "../testdata/img/azarashi.png", rmSrc: true, isErr: true, want: patherr},
+		{name: "jpg to png dont remove", srcPath: "../testdata/img/azarashi.jpg", to: ".png", dstPath: "../testdata/img/azarashi.png", rmSrc: false, isErr: false, want: ""},
+		{name: "png to jpg dont remove", srcPath: "../testdata/osaru.png", to: ".jpg", dstPath: "../testdata/osaru.jpg", rmSrc: false, isErr: false, want: ""},
+		{name: "jpg to png remove", srcPath: "../testdata/img/azarashi.jpg", to: ".png", dstPath: "../testdata/img/azarashi.png", rmSrc: true, isErr: false, want: ""},
+		{name: "no such file or dir", srcPath: "../testdata/img/dontexist.jpg", to: ".png", dstPath: "../testdata/img/azarashi.png", rmSrc: true, isErr: true, want: "*convimg.OpenErr"},
+		{name: "textfile", srcPath: "../testdata/textfile.jpg", to: ".png", dstPath: "../testdata/textfile.png", rmSrc: true, isErr: true, want: "*convimg.DecodeErr"},
 	}
 
 	for _, test := range tests {
@@ -166,14 +170,14 @@ func decodeForTest(t *testing.T, srcPath string) (image.Image, error) {
 	return img, nil
 }
 
-func errCheck(t *testing.T, err error, isErr bool, want error) {
+func errCheck(t *testing.T, err error, isErr bool, want string) {
 	t.Helper()
 
 	switch {
 	case !isErr && err != nil: //正常系なのにエラー
 		t.Errorf("want no err, but got [%v]", reflect.TypeOf(err))
-	case isErr && reflect.TypeOf(err) != reflect.TypeOf(want): //異常系なのにエラー無し、もしくは想定外のエラー
-		t.Errorf("want [%v], but got [%v]", reflect.TypeOf(want), reflect.TypeOf(err))
+	case isErr && reflect.TypeOf(err).String() != want: //異常系なのにエラー無し、もしくは想定外のエラー
+		t.Errorf("want [%v], but got [%v]", want, reflect.TypeOf(err).String())
 	}
 }
 
