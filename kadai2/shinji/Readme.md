@@ -33,10 +33,13 @@ $ go build main.go  # ビルド
 ```shell
 $ # jpg -> png（デフォルト）
 $ ./main ./testdata
+
 $ # png -> jpg（変換前後の拡張子指定）
 $ ./main -from=.png -to=.jpg ./testdata
+
 $ # jpg -> png（変換元のファイルを削除）
 $ ./main -r ./testdata
+
 $ # png -> gif（変換前後の拡張子指定、変換元のファイルを削除）
 $ ./main -r -from=.png -to=.gif ./testdata
 ```
