@@ -47,9 +47,9 @@ func Ask() string {
 }
 
 func Check(input string, answer string, score int, total int) (int, int) {
-	total += 1
+	total++
 	if input == answer {
-		score += 1
+		score++
 		fmt.Printf("correct! score: %v/%v \n\n", score, total)
 	} else {
 		fmt.Printf("incorrect! score: %v/%v \n\n", score, total)
