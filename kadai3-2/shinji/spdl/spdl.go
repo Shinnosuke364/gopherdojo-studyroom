@@ -6,6 +6,9 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"sync"
+
+	"github.com/cheggaaa/pb/v3"
 )
 
 type Range struct {
@@ -21,25 +24,20 @@ func Download(filepath string, url string, procs int) error {
 
 	split := filesize / procs
 
+	var wg sync.WaitGroup
+
 	// parallel download
 	for i := 0; i < procs; i++ {
+		wg.Add(1)
 
 		// make range
 		r := makeRange(i, split, procs, filesize)
 
 		// download
-		errChan := make(chan error, 1)
-
-		go func() {
-			err := dlpart(r, url, filepath)
-			errChan <- err
-		}()
-
-		err := <-errChan
-		if err != nil {
-			return err
-		}
+		go dlpart(r, url, filepath, &wg)
 	}
+
+	wg.Wait()
 
 	return nil
 }
@@ -72,7 +70,14 @@ func makeRange(i, split, procs, filesize int) Range {
 	return r
 }
 
-func dlpart(r Range, url string, filepath string) error {
+func dlpart(r Range, url, filepath string, wg *sync.WaitGroup) error {
+
+	var limit int = r.last - r.first + 1
+	bar := pb.Full.Start(limit)
+
+	//
+	defer wg.Done()
+
 	// make response
 	res, err := makeResponse(r, url)
 	if err != nil {
@@ -87,10 +92,9 @@ func dlpart(r Range, url string, filepath string) error {
 	}
 	defer output.Close()
 
-	// copy
-	if _, err := io.Copy(output, res.Body); err != nil {
-		return err
-	}
+	barReader := bar.NewProxyReader(res.Body)
+	io.Copy(output, barReader)
+	bar.Finish()
 
 	return nil
 }

@@ -10,9 +10,9 @@ import (
 )
 
 var (
-	url      *string = flag.String("u", "https://golangcode.com/logo.svg", "download source URL")
-	filepath *string = flag.String("f", "./logo.svg", "filepath of the destination")
-	procs    *int    = flag.Int("p", 5, "number of processes")
+	url      *string = flag.String("u", "https://download.docker.com/win/stable/Docker%20Desktop%20Installer.exe", "download source URL")
+	filepath *string = flag.String("f", "./docker.exe", "filepath of the destination")
+	procs    *int    = flag.Int("p", 16, "number of processes")
 )
 
 func main() {
@@ -27,6 +27,6 @@ func main() {
 
 	end := time.Now()
 
-	fmt.Printf("File %s downlaod in current working directory\n", *filepath)
-	fmt.Printf("%vprocks: %f秒\n", *procs, (end.Sub(start)).Seconds())
+	fmt.Printf("\nFile %s downlaod in current working directory\n", *filepath)
+	fmt.Printf("%vprocks: %f秒\n\n", *procs, (end.Sub(start)).Seconds())
 }
