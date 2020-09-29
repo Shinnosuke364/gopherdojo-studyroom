@@ -28,7 +28,7 @@ func GetInput(r io.Reader) <-chan string {
 		for s.Scan() {
 			input <- s.Text()
 		}
-		close(input)
+		//close(input)
 	}()
 
 	return input
