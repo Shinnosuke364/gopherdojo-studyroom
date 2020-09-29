@@ -46,15 +46,28 @@ func Ask() string {
 	return answer
 }
 
-func Check(input string, answer string, score int, total int) (int, int) {
-	total++
+func Check(input string, answer string) bool {
 	if input == answer {
+		return true
+	} else {
+		return false
+	}
+}
+
+func Score(score, total int, isCorrect bool) (int, int) {
+	total++
+	if isCorrect {
 		score++
+	}
+	return score, total
+}
+
+func ShowMessage(isCorrect bool, score, total int) {
+	if isCorrect {
 		fmt.Printf("correct! score: %v/%v \n\n", score, total)
 	} else {
 		fmt.Printf("incorrect! score: %v/%v \n\n", score, total)
 	}
-	return score, total
 }
 
 func Do() {
@@ -72,7 +85,9 @@ func Do() {
 		select {
 		// 入力があれば判定
 		case input := <-in:
-			score, total = Check(input, answer, score, total)
+			isCorrect := Check(input, answer)
+			score, total = Score(score, total, isCorrect)
+			ShowMessage(isCorrect, score, total)
 
 		// 時間切れならスコアを表示して終了
 		case <-timelimit:
